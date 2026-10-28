@@ -29,16 +29,22 @@ def query(payload, model_id, api_token):
     )
 
     # Request the specific AI Chef (e.g., Nvidia Nemotron) to prepare the response
-    response = client.chat.completions.create(
-        model=model_id,                           # Which specialized AI chef should prepare this order?
-        messages=[
+# ✅ REPLACE WITH THIS:
+    kwargs = {
+        "model": model_id,
+        "messages": [
             {
                 "role": "user",
-                "content": payload["input"],      # The customer's raw prompt / recipe request
+                "content": payload["input"],
             }
         ],
-        extra_body={"reasoning": {"enabled": True}}, # Telling the kitchen: "Take a moment to think carefully before answering"
-    )
+    }
+
+    # Only attach reasoning for models that support it (e.g., Nvidia Nemotron)
+    if "nemotron" in model_id.lower():
+        kwargs["extra_body"] = {"reasoning": {"enabled": True}}
+
+    response = client.chat.completions.create(**kwargs)
 
     return response  # Return the freshly cooked response payload back to the waiter
 
@@ -57,17 +63,21 @@ def call_openrouter_chat_model():
     questions = req.args.get("input")                        # Waiter reads: "What is your prompt question?"
     
     # B. Dispatching the order to the kitchen helper function
-    data = query(
-        {"input": f"{questions}"},
-        model_id,
-        openrouter_token,
-    )
-    logging.debug(f"Model output: {data}")
-    
+    try:
+        data = query(
+            {"input": f"{questions}"},
+            model_id,
+            openrouter_token,
+        )
+        logging.debug(f"Model output: {data}") 
     # C. Plating the dish neatly
     # We extract the text output from the first response choice and pack it into a JSON key named "ack"
-    output = jsonify({"ack": data.choices[0].message.content})
-    
+        output = jsonify({"ack": data.choices[0].message.content})
+    except Exception as e:
+        # Catch OpenRouter errors safely without crashing Flask into a 500 HTML page
+        logging.error(f"Error calling {model_id}: {str(e)}")
+        output = jsonify({"ack": f"⚠️ Model Error ({model_id}): {str(e)}"})
+
     # D. Adding a "Welcome Everyone" sign (CORS Header)
     # Allows the Streamlit frontend container to receive the food without cross-origin blocking
     output.headers.add("Access-Control-Allow-Origin", "*")
@@ -94,4 +104,4 @@ if __name__ == "__main__":
     # Run the restaurant!
     # '0.0.0.0' = Accept orders from any network address
     # 'port=port' = Listen specifically on Port 5001
-    app.run(debug=True, host="0.0.0.0", port=port
+    app.run(debug=True, host="0.0.0.0", port=port)
