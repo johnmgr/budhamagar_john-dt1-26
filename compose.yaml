@@ -1,16 +1,31 @@
-version: "3.9"
-
 services:
-  frontend:
-    image: dt1_frontend:latest
-    ports:
-      - "8501:8501"
-    depends_on:
-      - api
-    env_file:
-      - .env
-
+  # ====================================================
+  # I AM THE BACKEND SERVICE (Flask API Proxy)
+  # ====================================================
   api:
-    image: dt1_api:latest
+    build:
+      context: .                  # Look right here in the current folder for my building blocks.
+      dockerfile: Dockerfile.api   # Use my dedicated backend recipe book (Dockerfile.api) to build me.
+    image: dt1_api:latest         # Once I'm built, give me this official name tag so Docker recognizes me.
     ports:
-      - "5001:5001"
+      - "5001:5001"               # Open a tunnel so traffic coming into port 5001 on your VM gets routed straight inside to me.
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY} # Reach into your secret .env file and securely grab the OpenRouter key so I can use it.
+
+  # ====================================================
+  # I AM THE FRONTEND SERVICE (Streamlit UI)
+  # ====================================================
+  frontend:
+    build:
+      context: .                  # Look right here in the current folder for my files too.
+      dockerfile: Dockerfile.frontend # Use my specific frontend recipe book (Dockerfile.frontend) to build my visual interface.
+    image: dt1_frontend:latest    # Give my built image this name tag.
+    ports:
+      - "8501:8501"               # Open a tunnel on port 8501 so you can open me in your browser and see your web app.
+    environment:
+      - BASE_URL=http://api:5001  # Point me directly to my backend buddy (`api`) using Docker's internal network so I know where to send requests.
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY} # Bring along the API key just in case I need it.
+    depends_on:
+      - api                       # Make sure the 'api' service finishes starting up completely *before* you allow me to boot up!
+
+
