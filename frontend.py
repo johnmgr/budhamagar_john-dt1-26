@@ -15,7 +15,7 @@ if "host" not in st.session_state:
   st.session_state.host = os.getenv("BASE_URL", "http://api:5001")
 
 # 2. Capture user input/User prompt input element matching the requirements
-user_input = st.text_input("Ask me something", placeholder="e.g.,hello")
+user_input = st.text_input("Ask me something", placeholder = "e.g.,hello")
 user_input_encode = quote(user_input)
 
 # 3. Specify the required model ID/Required model ID specified
@@ -44,7 +44,7 @@ if st.button("chat"):
 
     with st.spinner(f"Calling {model_id}..."):
      try:
-       response = requests.get(ENDPOINT, timeout=30)
+       response = requests.get(ENDPOINT, timeout=120)
         if response.status_code == 200:
             st.success("Success!")
            # Displays the "ack" response returned from Flask api.py/ the backend
