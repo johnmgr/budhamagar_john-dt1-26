@@ -127,6 +127,7 @@ sudo docker compose up --build -d
 ### 2. Backend Proxy (`api.py`)
 * **GET Routing Logic:** Adapted `/chat` endpoint to parse URL-encoded query strings (`model_id`, `openrouter_token`, `input`).
 * **Cross-Origin Resource Sharing:** Enabled `flask_cors.CORS` to handle internal container requests.
+* **Openrouter-keys:** generated key used instead of provided key.
 
 ### 3. Container & Build Setup (`compose.yaml` & `Dockerfile.api`)
 * **Service Linking:** Configured internal container bridge networking using service hostnames (`http://api:5001`).
