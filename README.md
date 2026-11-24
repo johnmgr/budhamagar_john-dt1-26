@@ -21,7 +21,7 @@ A containerized 3-tier LLM chat application built for university assessment. The
                              │ HTTP Inbound (Ports 8501 & 5001)
                              ▼
 ┌─────────────────────────────────────────────────────────┐
-│        GCP VM Host (External IP: 34.62.52.162)          │
+│        GCP VM Host (External IP: 34.14.42.230)          │
 │ 🔒 Firewall: allow-university-network (TCP 8501, 5001)  │
 │                                                         │
 │ ┌─────────────────────────────────────────────────────┐ │
@@ -67,7 +67,7 @@ A containerized 3-tier LLM chat application built for university assessment. The
 
 ### Data Flow
 
-1. **User Request:** User navigates to `http://34.62.52.162:8501` and submits a chat prompt.
+1. **User Request:** User navigates to `http://34.14.42.230:8501` and submits a chat prompt.
 2. **Frontend Dispatch:** Streamlit URL-encodes request parameters (`model_id`, `openrouter_token`, `input`) and dispatches an HTTP GET request across the Docker bridge network to `http://api:5001/chat`.
 3. **Backend Processing:** Flask extracts query parameters, formats an OpenRouter payload, attaches the Bearer token, and executes an HTTPS request over port 443.
 4. **LLM Response:** OpenRouter returns the generated AI response to Flask, which packages it into JSON (`{"ack": "<AI_RESPONSE>"}`) and passes it back to Streamlit for rendering.
@@ -84,7 +84,7 @@ A containerized 3-tier LLM chat application built for university assessment. The
 ## 🚀 Google Cloud VM Deployment Steps
 
 ### 1. Connect and Clone
-SSH into GCP VM instance (`34.62.52.162`) and clone the repository:
+SSH into GCP VM instance (`34.14.42.230`) and clone the repository:
 ```bash
 git clone https://github.com/johnmgr/budhamagar_john-dt1-26.git
 cd budhamagar_john-dt1-26
@@ -111,8 +111,8 @@ sudo docker compose up --build -d
 ```
 
 ### 5. Verify Endpoints
-* **Frontend Web UI:** Access `http://34.62.52.162:8501`
-* **Backend Health Check:** Access `http://34.62.52.162:5001/ping`
+* **Frontend Web UI:** Access `http://34.14.42.230:8501`
+* **Backend Health Check:** Access `http://34.14.42.230:5001/ping`
 
 ---
 
